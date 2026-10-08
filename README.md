@@ -15,6 +15,15 @@ There are two entry points in this repo:
 | Legacy | `app.main:app` (repo root, `app/`) | health + quote only |
 | Backend (current) | `backend/` (`src.main:backend_app`) | quote, bookings, checkout, integrations |
 
+## Tech stack
+
+| Area | Technologies |
+|------|--------------|
+| Backend | `Python`, `FastAPI`, `Pydantic Settings`, `httpx`, `Uvicorn` |
+| Database | `SQLAlchemy (async)`, `SQLite (aiosqlite)` |
+| Auth and payments | `JWT (python-jose)`, `passlib`, `Stripe Checkout` |
+| DevOps and tooling | `Docker`, `pytest`, `mypy` |
+
 ## Run
 
 Legacy entry (from the repo root):
