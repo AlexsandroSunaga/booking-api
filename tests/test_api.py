@@ -1,7 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from app.main import app as legacy_app
 from src.main import backend_app
 
 QUOTE = {
@@ -16,18 +15,12 @@ QUOTE = {
 
 
 @pytest.fixture(scope="module")
-def legacy():
-    return TestClient(legacy_app)
-
-
-@pytest.fixture(scope="module")
 def backend():
     return TestClient(backend_app)
 
 
-@pytest.mark.parametrize("fixture_name", ["legacy", "backend"])
-def test_health_and_quote_on_both_entries(request, fixture_name):
-    client = request.getfixturevalue(fixture_name)
+def test_health_and_quote(backend):
+    client = backend
     assert client.get("/health").json()["status"] == "ok"
     body = client.post("/api/v1/quote", json=QUOTE).json()
     assert body["distanceMiles"] > 10
@@ -37,9 +30,9 @@ def test_health_and_quote_on_both_entries(request, fixture_name):
     assert body["surgeMultiplier"] == 1.02
 
 
-def test_return_trip_doubles_price(legacy):
-    one_way = legacy.post("/api/v1/quote", json=QUOTE).json()["vehicles"][0]["totalPrice"]
-    ret = legacy.post("/api/v1/quote", json={**QUOTE, "isReturn": True}).json()["vehicles"][0]["totalPrice"]
+def test_return_trip_doubles_price(backend):
+    one_way = backend.post("/api/v1/quote", json=QUOTE).json()["vehicles"][0]["totalPrice"]
+    ret = backend.post("/api/v1/quote", json={**QUOTE, "isReturn": True}).json()["vehicles"][0]["totalPrice"]
     assert ret == pytest.approx(one_way * 2, abs=0.01)
 
 

@@ -8,12 +8,7 @@
 
 Pricing, quote and booking service for a transfer-booking web app. It calculates trip quotes from coordinates (haversine distance, three vehicle tiers, night and weekend surge multipliers, market-specific fares), keeps an in-memory booking list, and can create Stripe Checkout sessions.
 
-There are two entry points in this repo:
-
-| Entry | Location | Contents |
-|---|---|---|
-| Legacy | `app.main:app` (repo root, `app/`) | health + quote only |
-| Backend (current) | `backend/` (`src.main:backend_app`) | quote, bookings, checkout, integrations |
+The API lives in `backend/` (`src.main:backend_app`).
 
 ## Tech stack
 
@@ -26,16 +21,7 @@ There are two entry points in this repo:
 
 ## Run
 
-Legacy entry (from the repo root):
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8010
-```
-
-Backend entry:
+Run the API:
 
 ```powershell
 cd backend
@@ -47,13 +33,13 @@ $env:PYTHONPATH="src"
 uvicorn src.main:backend_app --reload --port 8010
 ```
 
-Interactive docs: http://127.0.0.1:8010/docs. `backend/Dockerfile` runs the backend entry on port 8000 (build context `backend/`).
+Interactive docs: http://127.0.0.1:8010/docs. `backend/Dockerfile` runs the API on port 8000 (build context `backend/`).
 
 Settings come from `.env`: `MARKET` (`default`, `uk` or `brazil`), `CORS_ORIGINS` (defaults to `http://localhost:3000`) and `DEFAULT_CURRENCY`. Stripe, SendGrid, Google Maps and analytics keys are optional environment variables; `GET /api/v1/integrations/status` shows which are set.
 
 ## Endpoints
 
-Backend entry (the legacy entry only has `GET /health` and `POST /api/v1/quote`):
+Endpoints:
 
 - `GET /health`
 - `POST /api/v1/quote`
@@ -81,10 +67,10 @@ curl -X POST http://127.0.0.1:8010/api/v1/checkout/session \
 
 ## Tests
 
-Covers both the legacy entry (`app.main:app`) and the backend entry (`src.main:backend_app`).
+Tests use FastAPI's TestClient against `src.main:backend_app`.
 
 ```bash
-pip install -r requirements.txt -r backend/requirements.txt -r requirements-dev.txt
+pip install -r backend/requirements.txt -r requirements-dev.txt
 python -m pytest -q
 ```
 
