@@ -1,3 +1,4 @@
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from src.config.settings.environments import Environment
@@ -16,3 +17,10 @@ class BackendBaseSettings(BaseSettings):
     jwt_secret: str = "change-me"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 720
+
+    @model_validator(mode="after")
+    def _require_real_jwt_secret(self) -> "BackendBaseSettings":
+        placeholders = {"", "change-me", "changeme"}
+        if self.environment != Environment.DEVELOPMENT and self.jwt_secret in placeholders:
+            raise ValueError("JWT_SECRET must be set to a real secret when ENVIRONMENT is not development")
+        return self
